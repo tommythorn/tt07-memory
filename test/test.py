@@ -87,4 +87,16 @@ async def test_adder(dut):
   await ClockCycles(dut.clk, 2)
   assert int(dut.uo_out.value) == 0x55
 
+  # Reset again
+  dut._log.info("Reset")
+  dut.rst_n.value = 0
+  await ClockCycles(dut.clk, 10)
+  dut.rst_n.value = 1
+
+  # Ensure that the memory is cleared
+  for i in range(32):
+    dut.ui_in.value = i
+    await ClockCycles(dut.clk, 2)
+    assert int(dut.uo_out.value) == 0
+
   dut._log.info("all good!")
