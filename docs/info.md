@@ -1,20 +1,10 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 ## How it works
 
-Explain how your project works
+It uses 256 DFFs to implement 32 byte RAM.
+Reseting the project does not reset the RAM contents.
 
 ## How to test
 
-Explain how to use your project
-
-## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Set the `addr` pins to the desired address, and set the `in` pins to the desired value. 
+Then, set the `wr_en` pin to `1` to write the value to the RAM, or set it to `0` to read 
+the value from the RAM, and pulse `clk`.
