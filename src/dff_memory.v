@@ -22,18 +22,9 @@ module tt_um_urish_256_bits_dff_mem #(
 
   reg [7:0] RAM[RAM_BYTES - 1:0];
 
-  always @(posedge clk) begin
-    if (!rst_n) begin
-      uo_out <= 8'b0;
-      for (int i = 0; i < RAM_BYTES; i++) begin
-        RAM[i] <= 8'b0;
-      end
-    end else begin
-      if (wr_en) begin
-        RAM[addr] <= uio_in;
-      end
-      uo_out <= RAM[addr];
-    end
+  always @(*) begin
+      if (wr_en) RAM[addr] = uio_in;
+      uo_out = RAM[addr];
   end
 
 endmodule  // tt_um_urish_256_bits_dff_mem
