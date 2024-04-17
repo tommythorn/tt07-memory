@@ -16,14 +16,15 @@ module tb ();
   reg clk;
   reg rst_n;
   reg ena;
-  reg [7:0] ui_in;
-  reg [7:0] uio_in;
-  wire [7:0] uo_out;
+  reg [5:0] addr;
+  reg wr_en;
+  reg [7:0] data_in;
+  wire [7:0] data_out;
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
   // Replace tt_um_example with your module name:
-  tt_um_urish_256_bits_dff_mem user_project (
+  tt_um_MichaelBell_latch_mem user_project (
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
@@ -31,9 +32,9 @@ module tb ();
       .VGND(1'b0),
 `endif
 
-      .ui_in  (ui_in),    // Dedicated inputs
-      .uo_out (uo_out),   // Dedicated outputs
-      .uio_in (uio_in),   // IOs: Input path
+      .ui_in  ({wr_en, 1'b0, addr}),    // Dedicated inputs
+      .uo_out (data_out),   // Dedicated outputs
+      .uio_in (data_in),   // IOs: Input path
       .uio_out(uio_out),  // IOs: Output path
       .uio_oe (uio_oe),   // IOs: Enable path (active high: 0=input, 1=output)
       .ena    (ena),      // enable - goes high when design is selected

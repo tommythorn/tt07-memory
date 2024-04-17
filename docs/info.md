@@ -1,10 +1,19 @@
 ## How it works
 
-It uses 256 DFFs to implement 32 byte RAM.
-Reseting the project does not reset the RAM contents.
+It uses 512 latches to implement a 64 byte RAM.
+Resetting the project does not reset the RAM contents.
 
 ## How to test
 
-Set the `addr` pins to the desired address, and set the `in` pins to the desired value. 
-Then, set the `wr_en` pin to `1` to write the value to the RAM, or set it to `0` to read 
-the value from the RAM, and pulse `clk`.
+To write:
+- Set the `addr` pins to the desired address and set `wr_en` low
+- Pulse `clk`
+- Keep the `addr` pins set, set `data_in` (the bidirectional pins) to the desired value, set `wr_en` high
+- Pulse `clk`
+- The memory location is now written.
+- Note the next cycle must have `wr_en` low.
+
+To read:
+- Set the `addr` pins to the desired address and set `wr_en` low
+- Pulse `clk`
+- `data_out` (the output pins) reads the value at the memory location.
