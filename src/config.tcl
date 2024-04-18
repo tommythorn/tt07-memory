@@ -26,6 +26,9 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
+# Set don't touch buffers
+set ::env(RSZ_DONT_TOUCH_RX) "lm_dt_"
+
 # Faster build locally
 #set ::env(ROUTING_CORES) 14
 

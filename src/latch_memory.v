@@ -57,6 +57,8 @@ module tt_um_MichaelBell_latch_mem #(
 `ifdef SIM
   wire [7:0] result [(RAM_BYTES / 16)-1:0];
   wire [(RAM_BYTES / 16)-1:0] select;
+`else
+  wire [7:0] combined_out;
 `endif
 
   generate
@@ -72,7 +74,7 @@ module tt_um_MichaelBell_latch_mem #(
     assign result[i] = selected_out;
     assign select[i] = !partition_sel_n;
 `else
-    sky130_fd_sc_hd__ebufn_2 outbuf[7:0] ( .A(selected_out), .Z(uo_out), .TE_B(partition_sel_n) );
+    sky130_fd_sc_hd__ebufn_2 lm_dt_out_buf[7:0] ( .A(selected_out), .Z(combined_out), .TE_B(partition_sel_n) );
 `endif
   end
   endgenerate
@@ -89,6 +91,8 @@ module tt_um_MichaelBell_latch_mem #(
   end
 
   assign uo_out = out;
+`else
+  sky130_fd_sc_hd__clkbuf_4 lm_dt_wrapper_buf[7:0] (.A(combined_out), .X(uo_out));
 `endif
 
 endmodule  // tt_um_latch_mem

@@ -1,12 +1,12 @@
-## How it works
+## What's the project?
 
-It uses 512 latches to implement a 64 byte RAM.
+A 64 byte RAM implemented using 512 latches.
 
 Resetting the project does not reset the RAM contents.
 
 ## How to test
 
-To write:
+To write a byte to memory:
 
 * Set the `addr` pins to the desired address and set `wr_en` low
 * Pulse `clk`
@@ -15,7 +15,7 @@ To write:
 * The memory location is now written.
 * Note the next cycle must have `wr_en` low.
 
-To read:
+To read a byte from memory:
 
 * Set the `addr` pins to the desired address and set `wr_en` low
 * Pulse `clk`
