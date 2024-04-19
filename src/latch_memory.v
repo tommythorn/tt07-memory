@@ -3,12 +3,16 @@
 module tt_um_MichaelBell_latch_mem #(
     parameter RAM_BYTES = 64
 ) (
+/*verilator lint_off UNUSEDSIGNAL*/
     input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches
+/*verilator lint_on UNUSEDSIGNAL*/
     output wire [7:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
     input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
     output wire [7:0] uio_out,  // IOs: Bidirectional Output path
     output wire [7:0] uio_oe,   // IOs: Bidirectional Enable path (active high: 0=input, 1=output)
+/*verilator lint_off UNUSEDSIGNAL*/
     input  wire       ena,      // will go high when the design is enabled
+/*verilator lint_on UNUSEDSIGNAL*/
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
@@ -18,7 +22,7 @@ module tt_um_MichaelBell_latch_mem #(
   assign uio_out = 8'b0;
 
   wire [addr_bits-1:0] addr_in = ui_in[addr_bits-1:0];
-  reg  [addr_bits-1:0] addr_read;
+  reg  [3:0] addr_read;
   reg  [addr_bits-1:0] addr_write;
   wire wr_en_in = ui_in[7];
   reg  wr_en_next;
@@ -53,7 +57,7 @@ module tt_um_MichaelBell_latch_mem #(
       wr_en_next <= wr_en_in_valid;
       wr_en_valid <= wr_en_next;
     end
-    addr_read <= addr_in;
+    addr_read <= addr_in[3:0];
     if (wr_en_in_valid) begin
       addr_write <= addr_in;
       data_to_write <= uio_in;
@@ -107,7 +111,7 @@ module tt_um_MichaelBell_latch_mem #(
   generate
   for (i = 0; i < RAM_BYTES / 16; i = i+1) begin
     wire [addr_bits-1:4] high_addr = i;
-    wire [7:0] selected_out = RAM[{high_addr, addr_read[3:0]}];
+    wire [7:0] selected_out = RAM[{high_addr, addr_read}];
     reg partition_sel_n;
     always @(posedge clk) begin
       partition_sel_n <= addr_in[addr_bits-1:4] != high_addr;
