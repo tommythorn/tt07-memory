@@ -116,7 +116,7 @@ module tt_um_MichaelBell_latch_mem #(
 `ifdef SIM
     bufif0 out_buf[7:0] (combined_out, selected_out, partition_sel_n);
 `else
-    sky130_fd_sc_hd__ebufn_2 lm_dt_out_buf[7:0] ( .A(selected_out), .Z(combined_out), .TE_B(partition_sel_n) );
+    sky130_fd_sc_hd__ebufn_4 lm_dt_out_buf[7:0] ( .A(selected_out), .Z(combined_out), .TE_B(partition_sel_n) );
 `endif
   end
   endgenerate

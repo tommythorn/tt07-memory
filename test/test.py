@@ -11,10 +11,13 @@ async def fast_write(dut, addr, val, reset_wr_en = True):
   await ClockCycles(dut.clk, 1)
   if reset_wr_en:
     dut.wr_en.value = 0
+  dut.addr.value = random.randint(0, 63)
   dut.data_in.value = random.randint(0, 255)
 
-async def write(dut, addr, val, reset_wr_en = True):
+async def write(dut, addr, val, reset_wr_en = True, hold_address = False):
   await fast_write(dut, addr, val, reset_wr_en)
+  if hold_address:
+    dut.addr.value = addr
   await ClockCycles(dut.clk, 1)
 
 async def read(dut, addr):
@@ -52,13 +55,14 @@ async def test_basic(dut):
   await reset(dut)
   
   dut._log.info("Write one")
-  await write(dut, 0, 0xa5)
+  await write(dut, 0, 0xa5, hold_address=True)
   await Timer(5, "ns")
   assert dut.data_out.value == 0xa5
   await fast_write(dut, 0, 0x11)
   assert dut.data_out.value == 0xa5
   await Timer(5, "ns")
   assert dut.data_out.value == 0xa5
+  dut.addr.value = 0
   await ClockCycles(dut.clk, 1)
   await Timer(5, "ns")
   assert dut.data_out.value == 0x11
@@ -75,7 +79,7 @@ async def test_all(dut):
   
   dut._log.info("Write all locations")
   for i in range(64):
-    await write(dut, i, i+5)
+    await write(dut, i, i+5, hold_address=True)
     await Timer(5, "ns")
     assert dut.data_out.value == i + 5
 
@@ -85,7 +89,7 @@ async def test_all(dut):
 
   dut._log.info("Write all locations, no wr_en reset")
   for i in range(64):
-    await write(dut, i, i+15, False)
+    await write(dut, i, i+15, False, True)
     await Timer(5, "ns")
     assert dut.data_out.value == i + 15 
 
