@@ -18,18 +18,30 @@ module tt_um_MichaelBell_latch_mem #(
   assign uio_out = 8'b0;
 
   wire [addr_bits-1:0] addr_in = ui_in[addr_bits-1:0];
-  reg  [addr_bits-1:0] addr_r;
+  reg  [addr_bits-1:0] addr_read;
+  reg  [addr_bits-1:0] addr_write;
   wire wr_en_in = ui_in[7];
+  reg  wr_en_next;
   reg  wr_en_valid;
   reg  wr_en_ok;
   reg  [7:0] data_to_write;
 
   // Ensure stable inputs to the latches:
   // wr_en_valid is only high if addr_r is stable
+  wire wr_en_in_valid = wr_en_in && !wr_en_next;
   always @(posedge clk) begin
-    addr_r <= addr_in;
-    wr_en_valid <= wr_en_in && (addr_r == addr_in) && wr_en_ok;
-    data_to_write <= uio_in;
+    if (!rst_n) begin
+      wr_en_next <= 0;
+      wr_en_valid <= 0;
+    end else begin
+      wr_en_next <= wr_en_in_valid;
+      wr_en_valid <= wr_en_next;
+    end
+    addr_read <= addr_in;
+    if (wr_en_in_valid) begin
+      addr_write <= addr_in;
+      data_to_write <= uio_in;
+    end
   end
 
   always @(negedge clk) begin
@@ -45,7 +57,7 @@ module tt_um_MichaelBell_latch_mem #(
   genvar i;
   generate
   for (i = 0; i < RAM_BYTES; i = i+1) begin
-    wire sel_byte = (addr_r == i);
+    wire sel_byte = (addr_write == i);
     wire wr_en_this_byte = wr_en && sel_byte;
     always @(wr_en_this_byte or uio_in)
         if (wr_en_this_byte)
@@ -59,7 +71,7 @@ module tt_um_MichaelBell_latch_mem #(
   generate
   for (i = 0; i < RAM_BYTES / 16; i = i+1) begin
     wire [addr_bits-1:4] high_addr = i;
-    wire [7:0] selected_out = RAM[{high_addr, addr_r[3:0]}];
+    wire [7:0] selected_out = RAM[{high_addr, addr_read[3:0]}];
     reg partition_sel_n;
     always @(posedge clk) begin
       partition_sel_n <= addr_in[addr_bits-1:4] != high_addr;
