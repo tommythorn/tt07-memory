@@ -85,7 +85,7 @@ module tt_um_tommythorn07_latch_mem #(
      // Use an explicit and gate to minimize possibility of a glitch
      (* keep *) sky130_fd_sc_hd__and2_1 lm_gate ( .A(wr_en), .B(sel_byte), .X(wr_en_this_byte) );
      wire wr_en_this_byte_n = !wr_en_this_byte;
-     for (j = 0; i < 8; j = j + 1) begin
+     for (j = 0; j < 8; j = j + 1) begin
         // "X = ((A1 & A2) | B1)"
         // --> q[j] = ((q[j] & ~we) | (B1 & we)
         (* keep *) sky130_fd_sc_hd__a21o_1 bitj( .X(RAM[i][j]),
