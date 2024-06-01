@@ -35,7 +35,7 @@ async def read(dut, addr):
 async def reset(dut):
   dut._log.info("Reset")
   await ClockCycles(dut.clk, 1)
-  
+
   # Bidi IOs all used as inputs
   assert dut.uio_out.value == 0
   assert dut.uio_oe.value == 0
@@ -53,7 +53,7 @@ async def test_basic(dut):
   cocotb.start_soon(clock.start())
 
   await reset(dut)
-  
+
   dut._log.info("Write one")
   await write(dut, 0, 0xa5, hold_address=True)
   await Timer(5, "ns")
@@ -74,9 +74,9 @@ async def test_all(dut):
 
   clock = Clock(dut.clk, 20, units="ns")
   cocotb.start_soon(clock.start())
-  
+
   await reset(dut)
-  
+
   dut._log.info("Write all locations")
   for i in range(64):
     await write(dut, i, i+5, hold_address=True)
@@ -91,7 +91,7 @@ async def test_all(dut):
   for i in range(64):
     await write(dut, i, i+15, False, True)
     await Timer(5, "ns")
-    assert dut.data_out.value == i + 15 
+    assert dut.data_out.value == i + 15
 
   dut._log.info("Read back")
   for i in range(64):
@@ -104,9 +104,9 @@ async def test_random(dut):
 
   clock = Clock(dut.clk, 20, units="ns")
   cocotb.start_soon(clock.start())
-  
+
   await reset(dut)
-  
+
   dut._log.info("Fill memory")
   state = []
   for i in range(64):
@@ -119,7 +119,7 @@ async def test_random(dut):
   dut.wr_en.value = 0
   for i in range(2000):
     addr = random.randint(0, 63)
-    
+
     if random.randint(0, 1) == 0:
       if last_action == 0:
         await ClockCycles(dut.clk, 1)
@@ -130,7 +130,7 @@ async def test_random(dut):
       assert dut.data_out.value == state[addr]
       state[addr] = val
       last_action = 0
-    
+
     else:
       # Read
       assert await read(dut, addr) == state[addr]

@@ -1,7 +1,7 @@
 `default_nettype none
 
 module tt_um_tommythorn07_latch_mem #(
-    parameter RAM_BYTES = 128
+    parameter RAM_BYTES = 70
 ) (
 /*verilator lint_off UNUSEDSIGNAL*/
     input  wire [7:0] ui_in,    // Dedicated inputs
@@ -17,7 +17,7 @@ module tt_um_tommythorn07_latch_mem #(
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  localparam addr_bits = $clog2(RAM_BYTES);
+  localparam addr_bits = $clog2(RAM_BYTES-1)+1;
   assign uio_oe  = 8'b0;  // All bidirectional IOs are inputs
   assign uio_out = 8'b0;
 
@@ -101,7 +101,7 @@ module tt_um_tommythorn07_latch_mem #(
 
   // Reading:  Mux and tri-state buffer.
   //
-  // Reading the latches is straightforward.  However, a 128:1 mux for each bit is relatively area
+  // Reading the latches is straightforward.  However, an N:1 mux for each bit is relatively area
   // intensive so instead we have 8 16:1 muxes feeding 8 tri-state buffers.
   // Only the tri-state buffer corresponding to the selected read address is enabled, and the output is
   // taken from the wire driven by those 8 buffers.
