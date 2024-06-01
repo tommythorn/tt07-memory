@@ -1,12 +1,12 @@
 `default_nettype none
 
-module tt_um_MichaelBell_latch_mem #(
-    parameter RAM_BYTES = 64
+module tt_um_tommythorn07_latch_mem #(
+    parameter RAM_BYTES = 128
 ) (
 /*verilator lint_off UNUSEDSIGNAL*/
-    input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches
+    input  wire [7:0] ui_in,    // Dedicated inputs
 /*verilator lint_on UNUSEDSIGNAL*/
-    output wire [7:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
+    output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
     output wire [7:0] uio_out,  // IOs: Bidirectional Output path
     output wire [7:0] uio_oe,   // IOs: Bidirectional Enable path (active high: 0=input, 1=output)
@@ -34,7 +34,7 @@ module tt_um_MichaelBell_latch_mem #(
   //
   // The write address, addr_write, is always set to the same value for 2 clocks when doing a write.
   // When the write is requested addr_write and data_to_write are captured.  wr_en_next is set high.
-  // If wr_en_next was already high the write is ignored, so the inputs to the latches aren't 
+  // If wr_en_next was already high the write is ignored, so the inputs to the latches aren't
   // modified when a write is about to happen.
   //
   // On the next clock, wr_en_valid is set to wr_en_next.  addr_write is stable at this time so the
@@ -43,7 +43,7 @@ module tt_um_MichaelBell_latch_mem #(
   // wr_en_ok is a negative edge triggered flop that is set to !wr_en_valid.  This will therefore
   // go low half a clock after wr_en_valid is set high.  And because two consecutive writes are not
   // allowed it will always be high when wr_en_valid goes high.
-  // 
+  //
   // The latch gate is set by anding together wr_en_valid, wr_en_ok and the sel_byte for that byte.
   // This means the latch gate for just the selected byte's latches goes high for the first half of
   // the write clock cycle.  data_to_write is stable across this time (it can not change until the
@@ -68,43 +68,49 @@ module tt_um_MichaelBell_latch_mem #(
     wr_en_ok <= !wr_en_valid;
   end
 
-  reg [7:0] RAM[RAM_BYTES - 1:0];
+  wire [7:0] RAM[RAM_BYTES - 1:0];
 
-  // wr_en is high only for the first half of the clock cycle, 
+  // wr_en is high only for the first half of the clock cycle,
   // and when addr_r is the same as on last cycle, so sel_byte is stable.
   wire wr_en = wr_en_valid && wr_en_ok;
 
-  genvar i;
+  genvar i, j;
   generate
   for (i = 0; i < RAM_BYTES; i = i+1) begin
     wire sel_byte = (addr_write == i);
     wire wr_en_this_byte;
-`ifdef SIM    
+`ifdef SIM
     assign wr_en_this_byte = wr_en && sel_byte;
 `else
-    // Use an explicit and gate to minimize possibility of a glitch
-    (* keep *) sky130_fd_sc_hd__and2_1 lm_gate ( .A(wr_en), .B(sel_byte), .X(wr_en_this_byte) );
-`endif
-    always @(wr_en_this_byte or uio_in)
-        if (wr_en_this_byte)
-            RAM[i] <= data_to_write;
+     // Use an explicit and gate to minimize possibility of a glitch
+     (* keep *) sky130_fd_sc_hd__and2_1 lm_gate ( .A(wr_en), .B(sel_byte), .X(wr_en_this_byte) );
+     wire wr_en_this_byte_n = !wr_en_this_byte;
+     for (j = 0; i < 8; j = j + 1) begin
+        // "X = ((A1 & A2) | B1)"
+        // --> q[j] = ((q[j] & ~we) | (B1 & we)
+        (* keep *) sky130_fd_sc_hd__a21o_1 bitj( .X(RAM[i][j]),
+                                                 .A1(RAM[i][j]),
+                                                 .A2(wr_en_this_byte_n),
+                                                 .B1(data_to_write[j] & wr_en_this_byte) );
+     end
 
+`endif
   end
   endgenerate
 
 
   // Reading:  Mux and tri-state buffer.
   //
-  // Reading the latches is straightforward.  However, a 64:1 mux for each bit is relatively area 
-  // intensive so instead we have 4 16:1 muxes feeding 4 tri-state buffers.
+  // Reading the latches is straightforward.  However, a 128:1 mux for each bit is relatively area
+  // intensive so instead we have 8 16:1 muxes feeding 8 tri-state buffers.
   // Only the tri-state buffer corresponding to the selected read address is enabled, and the output is
-  // taken from the wire driven by those 4 buffers.
+  // taken from the wire driven by those 8 buffers.
   //
   // To minimize contention, the tri-state enable pin of the buffers is driven directly from a flop which
-  // captures the selected read address directly from the inputs, at the same cycle as the addr_read flops 
+  // captures the selected read address directly from the inputs, at the same cycle as the addr_read flops
   // are set.
   //
-  // The combined output wire then goes to a final buffer before leaving the module, ensuring the outputs 
+  // The combined output wire then goes to a final buffer before leaving the module, ensuring the outputs
   // are driven cleanly.
   wire [7:0] combined_out;
 
@@ -115,7 +121,7 @@ module tt_um_MichaelBell_latch_mem #(
     reg partition_sel_n;
     always @(posedge clk) begin
       partition_sel_n <= addr_in[addr_bits-1:4] != high_addr;
-    end 
+    end
 
 `ifdef SIM
     bufif0 out_buf[7:0] (combined_out, selected_out, partition_sel_n);
@@ -131,4 +137,4 @@ module tt_um_MichaelBell_latch_mem #(
   sky130_fd_sc_hd__clkbuf_4 lm_dt_final_buf[7:0] (.A(combined_out), .X(uo_out));
 `endif
 
-endmodule  // tt_um_latch_mem
+endmodule

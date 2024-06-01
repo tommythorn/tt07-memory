@@ -26,11 +26,9 @@ set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.05
 set ::env(RUN_LINTER) 1
 set ::env(LINTER_INCLUDE_PDK_MODELS) 1
 
-# Set don't touch buffers
-set ::env(RSZ_DONT_TOUCH_RX) "lm_dt_"
-
-# Faster build locally
-#set ::env(ROUTING_CORES) 14
+# If you need a custom clock configuration, read the following documentation first:
+# https://tinytapeout.com/faq/#how-can-i-map-an-additional-external-clock-to-one-of-the-gpios
+set ::env(CLOCK_PORT) {clk}
 
 # Configuration docs: https://openlane.readthedocs.io/en/latest/reference/configuration.html
 
@@ -77,8 +75,10 @@ set ::env(DECAP_CELL) "\
 
 # Clock
 set ::env(RUN_CTS) 1
-set ::env(CLOCK_PORT) {clk}
 
 # Don't use power rings or met5 layer
 set ::env(DESIGN_IS_CORE) 0
 set ::env(RT_MAX_LAYER) {met4}
+
+# MAGIC_DEF_LABELS may cause issues with LVS
+set ::env(MAGIC_DEF_LABELS) 0

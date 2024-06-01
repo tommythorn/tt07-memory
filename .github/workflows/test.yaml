@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install iverilog
         shell: bash
@@ -17,12 +19,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install cocotb 1.8.x
+      - name: Install Python packages
         shell: bash
-        run: |
-          pip install cocotb~=1.8.0
-          cocotb-config --libpython
-          cocotb-config --python-bin
+        run: pip install -r test/requirements.txt
 
       - name: Run tests
         run: |
@@ -33,7 +32,7 @@ jobs:
           ! grep failure results.xml
 
       - name: Test Summary
-        uses: test-summary/action@v2.2
+        uses: test-summary/action@v2.3
         with:
           paths: "test/results.xml"
         if: always()
