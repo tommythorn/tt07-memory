@@ -87,12 +87,13 @@ module tt_um_tommythorn07_latch_mem #(
 `endif
      wire wr_en_this_byte_n = !wr_en_this_byte;
      for (j = 0; j < 8; j = j + 1) begin
-        // "X = ((A1 & A2) | B1)"
+        // "X = ((A1 & A2) | (B1 & B2))"
         // --> q[j] = ((q[j] & ~we) | (B1 & we)
-        (* keep *) sky130_fd_sc_hd__a21o_1 bitj( .X(RAM[i][j]),
+        (* keep *) sky130_fd_sc_hd__a22o_1 bitj( .X(RAM[i][j]),
                                                  .A1(RAM[i][j]),
                                                  .A2(wr_en_this_byte_n),
-                                                 .B1(data_to_write[j] & wr_en_this_byte) );
+                                                 .B1(data_to_write[j]),
+                                                 .B2(wr_en_this_byte));
      end
   end
   endgenerate
@@ -140,23 +141,22 @@ endmodule  // tt_um_latch_mem
 
 
 `ifdef SIM
-module sky130_fd_sc_hd__a21o (
+module sky130_fd_sc_hd__a22o_1 (
     output X,
     input  A1,
     input  A2,
-    input  B1
+    input  B1,
+    input  B2
 );
-
-    // Module ports
-
     // Local signals
     wire and0_out ;
+    wire and1_out ;
     wire or0_out_X;
 
     //  Name  Output     Other arguments
-    and and0 (and0_out , A1, A2         );
-    or  or0  (or0_out_X, and0_out, B1   );
-    buf buf0 (X        , or0_out_X      );
-
+    and and0 (and0_out , B1, B2            );
+    and and1 (and1_out , A1, A2            );
+    or  or0  (or0_out_X, and1_out, and0_out);
+    buf buf0 (X        , or0_out_X         );
 endmodule
 `endif

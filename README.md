@@ -4,9 +4,9 @@
 
 The Sky130 latch cell
 ![sky130_fd_sc_hd__dlxtp](https://skywater-pdk.readthedocs.io/en/main/_images/sky130_fd_sc_hd__dlxtp_1.svg)
-is larger than the A21O cell
-![sky130_fd_sc_hd__a21o_1](https://skywater-pdk.readthedocs.io/en/main/_images/sky130_fd_sc_hd__a21o_1.svg)
-which is all you need to hold state.  Will this matter enough to
+(pitch 12) is larger than the A22O cell
+![sky130_fd_sc_hd__a22o_1](https://skywater-pdk.readthedocs.io/en/main/_images/sky130_fd_sc_hd__a22o_1.svg)
+(pitch 7) which is all you need to hold state.  Will this matter enough to
 create a denser RAM?  That's what this is trying to figure out.
 Credit to Mike Bell whose project I have cloned and modified.  All
 bugs are mine.
