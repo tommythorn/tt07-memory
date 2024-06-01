@@ -1,12 +1,12 @@
 `default_nettype none
 
 module tt_um_tommythorn07_latch_mem #(
-    parameter RAM_BYTES = 70
+    parameter RAM_BYTES = 64
 ) (
 /*verilator lint_off UNUSEDSIGNAL*/
-    input  wire [7:0] ui_in,    // Dedicated inputs
+    input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches
 /*verilator lint_on UNUSEDSIGNAL*/
-    output wire [7:0] uo_out,   // Dedicated outputs
+    output wire [7:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
     input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
     output wire [7:0] uio_out,  // IOs: Bidirectional Output path
     output wire [7:0] uio_oe,   // IOs: Bidirectional Enable path (active high: 0=input, 1=output)
@@ -17,7 +17,7 @@ module tt_um_tommythorn07_latch_mem #(
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  localparam addr_bits = $clog2(RAM_BYTES-1)+1;
+  localparam addr_bits = $clog2(RAM_BYTES);
   assign uio_oe  = 8'b0;  // All bidirectional IOs are inputs
   assign uio_out = 8'b0;
 
@@ -33,7 +33,7 @@ module tt_um_tommythorn07_latch_mem #(
   // Writing: Ensuring stable inputs to the latches.
   //
   // The write address, addr_write, is always set to the same value for 2 clocks when doing a write.
-  // When the write is requested, addr_write and data_to_write are captured.  wr_en_next is set high.
+  // When the write is requested addr_write and data_to_write are captured.  wr_en_next is set high.
   // If wr_en_next was already high the write is ignored, so the inputs to the latches aren't
   // modified when a write is about to happen.
   //
@@ -68,41 +68,35 @@ module tt_um_tommythorn07_latch_mem #(
     wr_en_ok <= !wr_en_valid;
   end
 
-  wire [7:0] RAM[RAM_BYTES - 1:0];
+  reg [7:0] RAM[RAM_BYTES - 1:0];
 
   // wr_en is high only for the first half of the clock cycle,
   // and when addr_r is the same as on last cycle, so sel_byte is stable.
   wire wr_en = wr_en_valid && wr_en_ok;
 
-  genvar i, j;
+  genvar i;
   generate
   for (i = 0; i < RAM_BYTES; i = i+1) begin
     wire sel_byte = (addr_write == i);
     wire wr_en_this_byte;
-`ifdef SIM
+`ifdef SIM    
     assign wr_en_this_byte = wr_en && sel_byte;
 `else
      // Use an explicit and gate to minimize possibility of a glitch
      (* keep *) sky130_fd_sc_hd__and2_1 lm_gate ( .A(wr_en), .B(sel_byte), .X(wr_en_this_byte) );
-     wire wr_en_this_byte_n = !wr_en_this_byte;
-     for (j = 0; j < 8; j = j + 1) begin
-        // "X = ((A1 & A2) | B1)"
-        // --> q[j] = ((q[j] & ~we) | (B1 & we)
-        (* keep *) sky130_fd_sc_hd__a21o_1 bitj( .X(RAM[i][j]),
-                                                 .A1(RAM[i][j]),
-                                                 .A2(wr_en_this_byte_n),
-                                                 .B1(data_to_write[j] & wr_en_this_byte) );
-     end
-
 `endif
+    always @(wr_en_this_byte or uio_in)
+        if (wr_en_this_byte)
+            RAM[i] <= data_to_write;
+
   end
   endgenerate
 
 
   // Reading:  Mux and tri-state buffer.
   //
-  // Reading the latches is straightforward.  However, an N:1 mux for each bit is relatively area
-  // intensive so instead we have 8 16:1 muxes feeding 8 tri-state buffers.
+  // Reading the latches is straightforward.  However, a 64:1 mux for each bit is relatively area 
+  // intensive so instead we have 4 16:1 muxes feeding 4 tri-state buffers.
   // Only the tri-state buffer corresponding to the selected read address is enabled, and the output is
   // taken from the wire driven by those 8 buffers.
   //
@@ -137,4 +131,4 @@ module tt_um_tommythorn07_latch_mem #(
   sky130_fd_sc_hd__clkbuf_4 lm_dt_final_buf[7:0] (.A(combined_out), .X(uo_out));
 `endif
 
-endmodule
+endmodule  // tt_um_latch_mem
