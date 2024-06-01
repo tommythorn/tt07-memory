@@ -1,5 +1,16 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
+# Even tinier RAM
+
+The Sky130 latch cell
+![sky130_fd_sc_hd__dlxtp](https://skywater-pdk.readthedocs.io/en/main/_images/sky130_fd_sc_hd__dlxtp_1.svg)
+is larger than the A21O cell
+![sky130_fd_sc_hd__a21o_1](https://skywater-pdk.readthedocs.io/en/main/_images/sky130_fd_sc_hd__a21o_1.svg)
+which is all you need to hold state.  Will this matter enough to
+create a denser RAM?  That's what this is trying to figure out.
+Credit to Mike Bell whose project I have cloned and modified.  All
+bugs are mine.
+
 # Tiny Tapeout Verilog Project Template
 
 - [Read the documentation for project](docs/info.md)
