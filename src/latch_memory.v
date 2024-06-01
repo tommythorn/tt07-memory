@@ -33,7 +33,7 @@ module tt_um_tommythorn07_latch_mem #(
   // Writing: Ensuring stable inputs to the latches.
   //
   // The write address, addr_write, is always set to the same value for 2 clocks when doing a write.
-  // When the write is requested addr_write and data_to_write are captured.  wr_en_next is set high.
+  // When the write is requested, addr_write and data_to_write are captured.  wr_en_next is set high.
   // If wr_en_next was already high the write is ignored, so the inputs to the latches aren't
   // modified when a write is about to happen.
   //
