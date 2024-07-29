@@ -11,7 +11,7 @@ async def fast_write(dut, addr, val, reset_wr_en = True):
   await ClockCycles(dut.clk, 1)
   if reset_wr_en:
     dut.wr_en.value = 0
-  dut.addr.value = random.randint(0, 63)
+  dut.addr.value = random.randint(0, 47)
   dut.data_in.value = random.randint(0, 255)
 
 async def write(dut, addr, val, reset_wr_en = True, hold_address = False):
@@ -28,7 +28,7 @@ async def read(dut, addr):
 
   # Now setting wr_en low
   dut.wr_en.value = 0
-  dut.addr.value = random.randint(0, 63)
+  dut.addr.value = random.randint(0, 47)
   await Timer(5, "ns")
   return dut.data_out.value
 
@@ -78,23 +78,23 @@ async def test_all(dut):
   await reset(dut)
 
   dut._log.info("Write all locations")
-  for i in range(64):
+  for i in range(48):
     await write(dut, i, i+5, hold_address=True)
     await Timer(5, "ns")
     assert dut.data_out.value == i + 5
 
   dut._log.info("Read back")
-  for i in range(64):
+  for i in range(48):
     assert await read(dut, i) == i + 5
 
   dut._log.info("Write all locations, no wr_en reset")
-  for i in range(64):
+  for i in range(48):
     await write(dut, i, i+15, False, True)
     await Timer(5, "ns")
     assert dut.data_out.value == i + 15
 
   dut._log.info("Read back")
-  for i in range(64):
+  for i in range(48):
     assert await read(dut, i) == i + 15
 
 
@@ -109,7 +109,7 @@ async def test_random(dut):
 
   dut._log.info("Fill memory")
   state = []
-  for i in range(64):
+  for i in range(48):
     val = random.randint(0, 255)
     await write(dut, i, val, False)
     state.append(val)
@@ -118,7 +118,7 @@ async def test_random(dut):
   last_action = 1
   dut.wr_en.value = 0
   for i in range(2000):
-    addr = random.randint(0, 63)
+    addr = random.randint(0, 47)
 
     if random.randint(0, 1) == 0:
       if last_action == 0:

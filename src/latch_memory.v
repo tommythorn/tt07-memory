@@ -1,7 +1,7 @@
 `default_nettype none
 
 module tt_um_tommythorn07_latch_mem #(
-    parameter RAM_BYTES = 64
+    parameter RAM_BYTES = 48
 ) (
 /*verilator lint_off UNUSEDSIGNAL*/
     input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches

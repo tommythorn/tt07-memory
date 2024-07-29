@@ -2,23 +2,23 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= icarus
-TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = latch_memory.v
+SIM             ?= icarus
+TOPLEVEL_LANG   ?= verilog
+SRC_DIR          = $(PWD)/../src
+PROJECT_SOURCES  = latch_memory.v
 
 ifneq ($(GATES),yes)
 
 # RTL simulation:
-SIM_BUILD				= sim_build/rtl
+SIM_BUILD        = sim_build/rtl
 VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
-COMPILE_ARGS 		+= -I$(SRC_DIR)
+COMPILE_ARGS    += -I$(SRC_DIR)
 COMPILE_ARGS    += -DSIM
 
 else
 
 # Gate level simulation:
-SIM_BUILD				= sim_build/gl
+SIM_BUILD        = sim_build/gl
 COMPILE_ARGS    += -DGL_TEST
 COMPILE_ARGS    += -DFUNCTIONAL
 COMPILE_ARGS    += -DUSE_POWER_PINS
@@ -34,10 +34,10 @@ endif
 
 # Include the testbench sources:
 VERILOG_SOURCES += $(PWD)/tb.v 
-TOPLEVEL = tb
+TOPLEVEL         = tb
 
 # MODULE is the basename of the Python test file
-MODULE = test
+MODULE           = test
 
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
