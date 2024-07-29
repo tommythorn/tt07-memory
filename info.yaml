@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
-  title:        "Latch RAM (128 bytes)"      # Project title
+  title:        "Latch RAM (64 bytes)"      # Project title
   author:       "Tommy Thorn"      # Your name
   discord:      "tommythorn"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "128 byte RAM built out of a21o"      # One line description of what your project does
+  description:  "64 byte RAM built out of a22o"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
 
